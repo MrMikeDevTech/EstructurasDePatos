@@ -26,7 +26,11 @@ def start_flask():
 
 if __name__ == "__main__":
     threading.Thread(target=start_flask, daemon=True).start()
-    frontend_index = resource_path("src/frontend/dist/index.html")
+    frontend_index = resource_path("frontend/dist/index.html")
+
+    if not os.path.exists(frontend_index):
+        frontend_index = os.path.abspath("src/frontend/dist/index.html")
+
     
     webview.create_window("Mi App TODO", frontend_index)
     webview.start()

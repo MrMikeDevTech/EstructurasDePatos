@@ -13,22 +13,21 @@ git clone https://github.com/MrMikeDevTech/EstructurasDePatos.git
 cd EstructurasDePatos
 ```
 
-## 4. Compilar toda la app
-
+## 3. Compilar toda la app
 El proyecto incluye un script `.bat` que compila todo el proyecto, desde el frontend hasta el backend, y genera un ejecutable usando PyInstaller.
 
 ``` bash
 ./build.bat
 ```
 
-## 9. Ejecutar el programa
+## 4. Ejecutar el programa
 El ejecutable se encuentra en la carpeta `dist` generada por PyInstaller.
 
 ``` bash
 ./dist/MiTodoApp.exe
 ```
 
-## 10. Ejecutar el proyecto en modo desarrollo (opcional)
+## 5. Ejecutar el proyecto en modo desarrollo (opcional)
 Puedes ejecutar el backend y frontend por separado para desarrollo.
 
 ``` bash

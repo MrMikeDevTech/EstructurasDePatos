@@ -1,43 +1,87 @@
 @echo off
-echo =====================================
-echo      Limpiando carpetas antiguas
-echo =====================================
+setlocal enabledelayedexpansion
+
+REM ============================================
+REM    Verificar si el entorno virtual existe
+REM ============================================
+
+if not exist "venv" (
+    echo [95m[Venv] Creando entorno virtual[0m
+    python -m venv venv || goto error
+)
+
+REM ============================================
+REM          Activar el entorno virtual
+REM ============================================
+
+echo [95m[Venv] Activando entorno virtual[0m
+call venv\Scripts\activate || goto error
+
+REM ============================================
+REM           Instalar dependencias
+REM ============================================
+echo [95m[Venv] Instalando dependencias[0m
+pip install -r requirements.txt || goto error
+
+
+REM ============================================
+REM         Limpiando carpetas antiguas
+REM ============================================
+echo [95m[Cleanup] Limpiando carpetas antiguas[0m
 
 IF EXIST dist (
-    echo Eliminando carpeta dist...
-    rmdir /s /q dist
+    rmdir /s /q dist || goto error
 )
 
 IF EXIST build (
-    echo Eliminando carpeta build...
-    rmdir /s /q build
+    rmdir /s /q build || goto error
 )
 
-echo =====================================
-echo           Compilando la app
-echo =====================================
+REM ============================================
+REM           Compilando frontend
+REM ============================================
+echo [95m[Frontend] Compilando frontend[0m
+
+cd src/frontend || goto error
+bun install || goto error
+bun run build || goto error
+cd ../../ || goto error
+
+REM ============================================
+REM            Compilando la app
+REM ============================================
+echo [95m[App] Compilando la app[0m
 
 pyinstaller --onefile --windowed ^
  --add-data "src/frontend/dist;frontend/dist" ^
  --icon "src/assets/app.ico" ^
  --name "MiTodoApp" ^
- main.py
+ main.py || goto error
 
-echo =====================================
-echo            Limpiando cache
-echo =====================================
+REM ============================================
+REM            Limpiando cache
+REM ============================================
+echo [95m[Cleanup] Limpiando la cache[0m
 
-IF EXIST src\**\__pycache__ (
-    echo Eliminando __pycache__...
-    for /d /r %%i in (__pycache__) do (
+for /d /r %%i in (__pycache__) do (
+    if exist "%%i" (
         rmdir /s /q "%%i"
     )
 )
 
 cls
 
-echo =====================================
-echo      App compilada exitosamente!
-echo =====================================
+echo [92m[App] Compilada exitosamente![0m
 
 pause
+
+exit /b 0
+
+:error
+echo.
+echo [91m[Error] Hubo un error durante la compilacion.[0m
+echo.
+
+pause
+
+exit /b 1

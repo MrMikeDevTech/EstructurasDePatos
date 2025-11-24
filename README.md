@@ -13,45 +13,9 @@ git clone https://github.com/MrMikeDevTech/EstructurasDePatos.git
 cd EstructurasDePatos
 ```
 
-## 3. Crear entorno virtual
+## 4. Compilar toda la app
 
-Esto es para crearlo
-
-``` bash
-python -m venv venv
-```
-
-## 4. Activar entorno virtual
-
-``` bash
-venv\Scripts\activate
-```
-
-## 5. Instalar dependencias del backend
-
-``` bash
-pip install -r requirements.txt
-```
-
-## 6. Instalar dependencias del frontend
-
-Dentro de `src/frontend`:
-
-``` bash
-npm install
-```
-
-## 7. Compilar frontend
-
-``` bash
-npm run build
-```
-
-Esto genera la carpeta `dist` usada por PyInstaller.
-
-## 8. Compilar el proyecto con PyInstaller
-
-El proyecto incluye un script `.bat` que ejecuta:
+El proyecto incluye un script `.bat` que compila todo el proyecto, desde el frontend hasta el backend, y genera un ejecutable usando PyInstaller.
 
 ``` bash
 ./build.bat
@@ -73,5 +37,6 @@ python main.py
 
 # Para el frontend
 cd src/frontend
-npm run dev
+
+bun dev
 ```

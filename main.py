@@ -30,4 +30,3 @@ if __name__ == "__main__":
     
     webview.create_window("Mi App TODO", frontend_index)
     webview.start()
-    

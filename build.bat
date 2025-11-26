@@ -54,8 +54,8 @@ echo [95m[App] Compilando la app[0m
 
 pyinstaller --onefile --windowed ^
  --add-data "src/frontend/dist;frontend/dist" ^
- --icon "src/assets/app.ico" ^
- --name "MiTodoApp" ^
+ --icon "src/assets/Ducky.ico" ^
+ --name "Ducky" ^
  main.py || goto error
 
 REM ============================================
@@ -70,10 +70,12 @@ for /d /r %%i in (__pycache__) do (
 )
 
 cls
-
 echo [92m[App] Compilada exitosamente![0m
 
 pause
+
+echo [92m[App] Ejecutando la aplicacion...[0m
+start ./dist/Ducky.exe
 
 exit /b 0
 

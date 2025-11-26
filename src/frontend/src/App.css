@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+@theme {
+    --color-primary-white: #edede9;
+    --color-primary-beige: #f3ebe2;
+    --color-primary-active: #d5bdaf;
+    --color-primary-beige-dark: #e3d5ca;
+    --color-primary-tag: #d6ccc2;
+
+    --font-kalam: "Kalam", cursive;
+}

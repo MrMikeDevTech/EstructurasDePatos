@@ -30,7 +30,14 @@ if __name__ == "__main__":
 
     if not os.path.exists(frontend_index):
         frontend_index = os.path.abspath("src/frontend/dist/index.html")
-
     
-    webview.create_window("Mi App TODO", frontend_index)
+    webview.create_window(
+        title="Mi App TODO",
+        url=frontend_index,
+        width=1024,
+        height=768,
+        maximized=True,
+        min_size=(800, 600)
+    )
+    
     webview.start()

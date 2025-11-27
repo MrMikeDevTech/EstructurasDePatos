@@ -38,7 +38,7 @@ const initialTasks: Task[] = [
         id: "5",
         title: "Preparar presentación",
         description: "Crear diapositivas para la exposición de fin de curso",
-        dueDate: "2025-11-18T20:00",
+        dueDate: "2025-11-24T20:00",
         priority: "high",
         completed: false
     },
@@ -46,7 +46,7 @@ const initialTasks: Task[] = [
         id: "6",
         title: "Hacer ejercicio",
         description: "Ir al gimnasio y completar la rutina semanal",
-        dueDate: "2025-11-19T07:00",
+        dueDate: "2025-11-25T07:00",
         priority: "medium",
         completed: true
     },
@@ -54,8 +54,72 @@ const initialTasks: Task[] = [
         id: "7",
         title: "Examen Departamental de Inglés",
         description: "Presentar el examen departamental en el aula designada",
-        dueDate: "2025-11-28T09:00",
+        dueDate: "2025-11-28T08:00",
         priority: "high",
+        completed: false
+    },
+    {
+        id: "8",
+        title: "Revisar proyecto final",
+        description: "Hacer una revisión final del proyecto antes de entregarlo",
+        dueDate: "2025-11-27T14:00",
+        priority: "medium",
+        completed: false
+    },
+    {
+        id: "9",
+        title: "Comprar regalos",
+        description: "Comprar regalos para el intercambio de la posada",
+        dueDate: "2025-11-29T16:00",
+        priority: "low",
+        completed: false
+    },
+    {
+        id: "10",
+        title: "Estudiar para examen de inglés",
+        description: "Repasar vocabulario y gramática para el examen final",
+        dueDate: "2025-11-24T18:00",
+        priority: "medium",
+        completed: false
+    },
+    {
+        id: "11",
+        title: "Organizar la casa",
+        description: "Limpiar y organizar la casa para recibir visitas",
+        dueDate: "2025-11-30T10:00",
+        priority: "low",
+        completed: false
+    },
+    {
+        id: "12",
+        title: "Cierre de la posada",
+        description: "Asegurarse de que todo esté en orden después del evento",
+        dueDate: "2025-11-29T03:00",
+        priority: "low",
+        completed: false
+    },
+    {
+        id: "13",
+        title: "Examen Departamental de Inglés",
+        description: "Presentar el examen departamental en el aula designada",
+        dueDate: "2025-11-28T08:00",
+        priority: "high",
+        completed: false
+    },
+    {
+        id: "14",
+        title: "Revisar notas",
+        description: "Revisar las notas de la clase de matemáticas",
+        dueDate: "2025-11-25T12:00",
+        priority: "medium",
+        completed: true
+    },
+    {
+        id: "15",
+        title: "Planear vacaciones",
+        description: "Organizar el itinerario para las vacaciones de diciembre",
+        dueDate: "2025-11-30T18:00",
+        priority: "low",
         completed: false
     }
 ];

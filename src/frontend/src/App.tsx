@@ -15,7 +15,6 @@ import { useTask } from "./hooks/useTask";
 import CircleCheck from "./icons/CircleCheck";
 import DoubleCheck from "./icons/DoubleCheck";
 import Disgusting from "./icons/Disgusting";
-import Info from "./icons/Info";
 
 export default function App() {
     const { route: routeStore } = useNavigate((state) => state);
@@ -210,6 +209,9 @@ function HomePage() {
 }
 
 function SchedulePage() {
+    const [openHourModal, setOpenHourModal] = useState(false);
+    const [tasksAtSelectedHour, setTasksAtSelectedHour] = useState<Task[]>([]);
+
     const getMonday = (date: Date): Date => {
         const d = new Date(date);
         const day = d.getDay();
@@ -227,27 +229,6 @@ function SchedulePage() {
             days.push(d);
         }
         return days;
-    };
-
-    const getDateKey = (date: Date, hourLabel: string): string => {
-        const [time, period] = hourLabel.split(" ");
-        const t = time.split(":").map(Number);
-        let h = t[0];
-        const m = t[1] || 0;
-
-        if (period === "p.m." && h !== 12) {
-            h += 12;
-        } else if (period === "a.m." && h === 12) {
-            h = 0;
-        }
-
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
-        const hour = String(h).padStart(2, "0");
-        const minute = String(m).padStart(2, "0");
-
-        return `${year}-${month}-${day}T${hour}:${minute}`;
     };
 
     const hours = [
@@ -361,16 +342,18 @@ function SchedulePage() {
                     </h2>
                 </article>
 
-                <article className="bg-primary-active flex flex-1 overflow-y-scroll rounded-2xl shadow-md">
+                <article className="bg-primary-active flex flex-1 rounded-2xl shadow-md">
                     <table className="max-h-20 w-full border-collapse">
-                        <thead>
+                        <thead className="before:bg-primary-beige relative before:absolute before:inset-y-0 before:top-2 before:left-1/2 before:z-0 before:h-[85%] before:w-[95%] before:-translate-x-1/2 before:rounded-2xl">
                             <tr>
                                 <th className="w-[50px]"></th>
                                 {weekDays.map((date, index) => (
-                                    <th key={index} className="day-header border-b-4 border-gray-400 p-2">
-                                        <div className="flex flex-col items-center">
+                                    <th key={index} className="relative p-4">
+                                        <div className="relative flex flex-col items-center">
                                             <span className="text-lg font-medium">{dayNames[date.getDay()]}</span>
-                                            <span className="text-2xl font-bold">{date.getDate()}</span>
+                                            <span className="bg-primary-active rounded-full px-5 py-2 text-2xl font-bold">
+                                                {date.getDate()}
+                                            </span>
                                         </div>
                                     </th>
                                 ))}
@@ -380,41 +363,44 @@ function SchedulePage() {
                             {hours.map((hourLabel) => {
                                 const isCurrentHour = hourLabel === currentHourLabel;
 
+                                const effectToHighlight = "brightness-90 animate-pulse";
+
                                 return (
                                     <tr
                                         key={hourLabel}
-                                        className={`h-[50px] border-b border-gray-300 ${isCurrentHour ? "bg-primary-beige/25" : ""}`}
+                                        className={`h-[50px] border-b border-gray-300 ${isCurrentHour ? effectToHighlight : ""}`}
                                     >
-                                        <td className="hour-label border-r border-gray-300 pr-2 text-right text-sm font-medium">
+                                        <td className="hour-label border-t border-r border-gray-300 pr-2 text-right text-sm font-medium">
                                             {hourLabel}
                                         </td>
                                         {weekDays.map((date, dayIndex) => {
-                                            const cellDateTimeKey = getDateKey(date, hourLabel).substring(0, 16);
+                                            const tasksInCell = tasks.filter((t: Task) => {
+                                                const taskDate = new Date(t.dueDate);
 
-                                            const taskForCell = tasks.find(
-                                                (t: Task) => t.dueDate.substring(0, 16) === cellDateTimeKey
-                                            );
+                                                return (
+                                                    taskDate.getFullYear() === date.getFullYear() &&
+                                                    taskDate.getMonth() === date.getMonth() &&
+                                                    taskDate.getDate() === date.getDate() &&
+                                                    taskDate.getHours() === Number(hourLabel.split(":")[0])
+                                                );
+                                            });
 
                                             const isToday = date.toDateString() === currentDate.toDateString();
 
                                             return (
                                                 <td
                                                     key={dayIndex}
-                                                    className={`day-cell relative border-l border-gray-300 text-center ${isToday ? "bg-primary-beige/25" : ""}`}
+                                                    className={`bg-primary-active relative border-t border-l border-gray-300 text-center ${isToday && !isCurrentHour ? effectToHighlight : ""}`}
                                                 >
-                                                    {taskForCell && (
+                                                    {tasksInCell.length > 0 && (
                                                         <button
-                                                            title={taskForCell.title}
-                                                            className={`inline-flex h-10 w-10 items-center justify-center rounded-full text-xs font-bold text-white ${
-                                                                taskForCell.priority === "high" && "bg-red-500"
-                                                            } ${taskForCell.priority === "medium" && "bg-orange-500"} ${
-                                                                taskForCell.priority === "low" && "bg-green-500"
-                                                            } ${taskForCell.completed && "opacity-50"}`}
-                                                            onClick={() =>
-                                                                console.log("Mostrar detalles de:", taskForCell.title)
-                                                            }
+                                                            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white"
+                                                            onClick={() => {
+                                                                setTasksAtSelectedHour(tasksInCell);
+                                                                setOpenHourModal(true);
+                                                            }}
                                                         >
-                                                            <Info className="h-6 w-6 text-white" />
+                                                            +{tasksInCell.length}
                                                         </button>
                                                     )}
                                                 </td>
@@ -425,6 +411,11 @@ function SchedulePage() {
                             })}
                         </tbody>
                     </table>
+                    <TasksAtHourModal
+                        open={openHourModal}
+                        onClose={() => setOpenHourModal(false)}
+                        tasks={tasksAtSelectedHour}
+                    />
                 </article>
             </section>
         </section>
@@ -548,7 +539,14 @@ function NewTaskModal({ open, onClose }: { open: boolean; onClose: () => void })
         const newTask: Omit<Task, "id"> = {
             title: formData.get("title") as string,
             description: formData.get("description") as string,
-            dueDate: new Date(formData.get("dueDate") as string).toISOString(),
+            dueDate: (() => {
+                const inputDate = new Date(formData.get("dueDate") as string);
+                const currentDate = new Date();
+                if (inputDate < currentDate) {
+                    return currentDate.toISOString();
+                }
+                return inputDate.toISOString();
+            })(),
             priority: formData.get("priority") as "high" | "medium" | "low",
             completed: false
         };
@@ -564,7 +562,7 @@ function NewTaskModal({ open, onClose }: { open: boolean; onClose: () => void })
 
     return (
         <div
-            className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-200 ${open ? "bg-black/40 opacity-100" : "opacity-0"} `}
+            className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-200 ${open ? "bg-black/40 opacity-100 backdrop-blur-sm backdrop-saturate-150" : "opacity-0"} `}
             onClick={onClose}
         >
             <form
@@ -599,7 +597,21 @@ function NewTaskModal({ open, onClose }: { open: boolean; onClose: () => void })
                     <input
                         type="datetime-local"
                         name="dueDate"
+                        min={new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000)
+                            .toISOString()
+                            .slice(0, 16)}
                         required
+                        onInput={(e) => {
+                            const input = e.target as HTMLInputElement;
+                            const currentDateTime = new Date(
+                                new Date().getTime() - new Date().getTimezoneOffset() * 60000
+                            )
+                                .toISOString()
+                                .slice(0, 16);
+                            if (input.value < currentDateTime) {
+                                input.value = currentDateTime;
+                            }
+                        }}
                         className="bg-primary-beige mb-4 w-full rounded-xl border-none p-3 focus:outline-none"
                     />
                 </label>
@@ -633,6 +645,82 @@ function NewTaskModal({ open, onClose }: { open: boolean; onClose: () => void })
                     </button>
                 </div>
             </form>
+        </div>
+    );
+}
+
+/* MODAL DE TAREAS POR HORA */
+function TasksAtHourModal({ open, onClose, tasks }: { open: boolean; onClose: () => void; tasks: Task[] }) {
+    const [show, setShow] = useState(open);
+
+    useEffect(() => {
+        if (open) {
+            setShow(true);
+            document.body.style.overflow = "hidden";
+        } else {
+            const timeout = setTimeout(() => setShow(false), 200);
+            document.body.style.overflow = "";
+            return () => clearTimeout(timeout);
+        }
+    }, [open]);
+
+    if (!show) return null;
+
+    return (
+        <div
+            className={`fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-200 ${
+                open ? "opacity-100" : "opacity-0"
+            }`}
+        >
+            <div
+                className={`bg-primary-beige-dark max-h-[80vh] w-150 overflow-y-auto rounded-2xl p-8 shadow-xl transition-all duration-200 ${
+                    open ? "scale-100 opacity-100" : "scale-95 opacity-0"
+                }`}
+            >
+                <h2 className="mb-4 text-3xl font-bold">Tareas para esta hora</h2>
+
+                {tasks.length === 0 ? (
+                    <p className="text-center text-lg opacity-60">No hay tareas en esta hora.</p>
+                ) : (
+                    <ul className="flex flex-col gap-4">
+                        {tasks.map((task) => (
+                            <li
+                                key={task.id}
+                                className="bg-primary-active flex flex-col rounded-lg border border-black/20 p-4 shadow"
+                            >
+                                <span className="text-xl font-bold">{task.title}</span>
+                                <span className="text-sm opacity-70">{task.description}</span>
+                                <span className="text-sm opacity-70">
+                                    Prioridad:{" "}
+                                    <strong
+                                        className={(() => {
+                                            if (task.priority === "high") {
+                                                return "text-red-500";
+                                            }
+                                            if (task.priority === "medium") {
+                                                return "text-orange-500";
+                                            }
+                                            return "text-green-600";
+                                        })()}
+                                    >
+                                        {task.priority}
+                                    </strong>
+                                </span>
+                                <span className="text-xs opacity-60">
+                                    Fecha: {new Date(task.dueDate).toLocaleString()}
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+
+                <button
+                    className="bg-primary-active mt-6 w-full rounded-xl p-4 text-xl font-bold hover:brightness-90"
+                    onClick={onClose}
+                >
+                    Cerrar
+                </button>
+            </div>
         </div>
     );
 }

@@ -12,6 +12,10 @@ import { useNavigate } from "./hooks/useNavigate";
 import { toast } from "react-toastify";
 import Toast from "./components/Toast";
 import { useTask } from "./hooks/useTask";
+import CircleCheck from "./icons/CircleCheck";
+import DoubleCheck from "./icons/DoubleCheck";
+import Disgusting from "./icons/Disgusting";
+import Info from "./icons/Info";
 
 export default function App() {
     const { route: routeStore } = useNavigate((state) => state);
@@ -87,6 +91,7 @@ function LayoutMain({ children }: { children: React.ReactNode }) {
     return (
         <LayoutWrapper>
             <Sidebar />
+            <div style={{ width: "calc(7rem)" }}></div>
             {children}
         </LayoutWrapper>
     );
@@ -142,7 +147,7 @@ function HomePage() {
     const daysOfWeek = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
     const today = new Date();
     const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 1));
-    const currentDayIndex = today.getDay() === 0 ? 6 : today.getDay() + 1;
+    const currentDayIndex = new Date().getDay() - 1;
 
     const tasksByDay = daysOfWeek.map((_, index) => {
         const day = new Date(startOfWeek);
@@ -175,7 +180,7 @@ function HomePage() {
                     {daysOfWeek.map((day, index) => (
                         <div
                             key={index}
-                            className={`flex flex-col gap-2 rounded-xl p-4 ${index === currentDayIndex ? "border-primary-active border-8 shadow-lg" : ""}`}
+                            className={`flex flex-col gap-2 rounded-xl p-4 ${index === currentDayIndex ? "bg-primary-white/50 shadow-lg" : ""}`}
                             style={{ minHeight: "50%" }}
                         >
                             <h2 className="text-center text-lg font-semibold">{day}</h2>
@@ -205,16 +210,147 @@ function HomePage() {
 }
 
 function SchedulePage() {
+    const getMonday = (date: Date): Date => {
+        const d = new Date(date);
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+        d.setDate(diff);
+        d.setHours(0, 0, 0, 0);
+        return d;
+    };
+
+    const getWeekDays = (sunday: Date): Date[] => {
+        const days: Date[] = [];
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(sunday);
+            d.setDate(d.getDate() + i);
+            days.push(d);
+        }
+        return days;
+    };
+
+    const getDateKey = (date: Date, hourLabel: string): string => {
+        const [time, period] = hourLabel.split(" ");
+        const t = time.split(":").map(Number);
+        let h = t[0];
+        const m = t[1] || 0;
+
+        if (period === "p.m." && h !== 12) {
+            h += 12;
+        } else if (period === "a.m." && h === 12) {
+            h = 0;
+        }
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        const hour = String(h).padStart(2, "0");
+        const minute = String(m).padStart(2, "0");
+
+        return `${year}-${month}-${day}T${hour}:${minute}`;
+    };
+
+    const hours = [
+        "01:00",
+        "02:00",
+        "03:00",
+        "04:00",
+        "05:00",
+        "06:00",
+        "07:00",
+        "08:00",
+        "09:00",
+        "10:00",
+        "11:00",
+        "12:00",
+        "13:00",
+        "14:00",
+        "15:00",
+        "16:00",
+        "17:00",
+        "18:00",
+        "19:00",
+        "20:00",
+        "21:00",
+        "22:00",
+        "23:00",
+        "00:00"
+    ];
+
     const currentDate = new Date();
+    const sunday = getMonday(currentDate);
+    const weekDays = getWeekDays(sunday);
+
     const currentMonth = currentDate.toLocaleString("default", { month: "long" });
+    const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
+    const { tasks } = useTask((state: any) => state);
+
+    const currentHourLabel = `${String(currentDate.getHours()).padStart(2, "0")}:00`;
+
+    const tasksSummary = {
+        totalTasks: tasks.length,
+        completedTasks: tasks.filter((task: Task) => task.completed).length,
+        pendingTasks: tasks.filter((task: Task) => !task.completed).length,
+        tasksForToday: tasks.filter((task: Task) => {
+            const taskDate = new Date(task.dueDate);
+            const today = new Date();
+            return taskDate.toDateString() === today.toDateString();
+        }).length,
+        overdueTasks: tasks.filter((task: Task) => {
+            const taskDate = new Date(task.dueDate);
+            const today = new Date();
+            return taskDate < today && !task.completed;
+        }).length
+    };
     return (
         <section className="flex w-full flex-row gap-5">
             <section className="flex w-1/4 flex-col gap-5">
                 <article className="bg-primary-active flex h-80 items-center justify-center rounded-2xl shadow-md">
                     Calendar
                 </article>
-                <article className="bg-primary-beige-dark flex flex-1 items-center justify-center rounded-2xl shadow-md">
-                    Completed task
+
+                <article className="bg-primary-beige-dark flex max-h-142 flex-1 items-center justify-center rounded-2xl shadow-md">
+                    <section className="flex w-4/5 flex-col gap-6">
+                        <div className="flex w-full items-center justify-between rounded-xl border-2 border-blue-500 bg-blue-100 p-6 shadow-lg">
+                            <div className="flex flex-col">
+                                <span className="text-xl font-semibold text-blue-500">Total de tareas</span>
+                                <span className="text-2xl font-bold text-blue-500">{tasksSummary.totalTasks}</span>
+                            </div>
+                            <CircleCheck className="h-8 w-8 text-blue-500" />
+                        </div>
+
+                        <div className="flex w-full items-center justify-between rounded-xl border-2 border-green-500 bg-green-100 p-6 shadow-lg">
+                            <div className="flex flex-col">
+                                <span className="text-xl font-semibold text-green-500">Completadas</span>
+                                <span className="text-2xl font-bold text-green-500">
+                                    {tasksSummary.completedTasks}{" "}
+                                    <span className="text-xl italic">
+                                        (
+                                        {Math.round((tasksSummary.completedTasks / tasksSummary.totalTasks) * 100) || 0}
+                                        %)
+                                    </span>
+                                </span>
+                            </div>
+                            <DoubleCheck className="h-8 w-8 text-green-500" />
+                        </div>
+
+                        <div className="flex w-full items-center justify-between rounded-xl border-2 border-orange-500 bg-orange-100 p-6 shadow-lg">
+                            <div className="flex flex-col">
+                                <span className="text-xl font-semibold text-orange-500">Para hoy</span>
+                                <span className="text-2xl font-bold text-orange-500">{tasksSummary.tasksForToday}</span>
+                            </div>
+                            <Calendar className="h-8 w-8 text-orange-500" />
+                        </div>
+
+                        <div className="flex w-full items-center justify-between rounded-xl border-2 border-red-500 bg-red-100 p-6 shadow-lg">
+                            <div className="flex flex-col">
+                                <span className="text-xl font-semibold text-red-500">Vencidas</span>
+                                <span className="text-2xl font-bold text-red-500">{tasksSummary.overdueTasks}</span>
+                            </div>
+                            <Disgusting className="h-8 w-8 text-red-500" />
+                        </div>
+                    </section>
                 </article>
             </section>
 
@@ -224,8 +360,71 @@ function SchedulePage() {
                         {currentMonth}
                     </h2>
                 </article>
-                <article className="bg-primary-active flex flex-1 items-center justify-center rounded-2xl shadow-md">
-                    Schedule
+
+                <article className="bg-primary-active flex flex-1 overflow-y-scroll rounded-2xl shadow-md">
+                    <table className="max-h-20 w-full border-collapse">
+                        <thead>
+                            <tr>
+                                <th className="w-[50px]"></th>
+                                {weekDays.map((date, index) => (
+                                    <th key={index} className="day-header border-b-4 border-gray-400 p-2">
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-lg font-medium">{dayNames[date.getDay()]}</span>
+                                            <span className="text-2xl font-bold">{date.getDate()}</span>
+                                        </div>
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {hours.map((hourLabel) => {
+                                const isCurrentHour = hourLabel === currentHourLabel;
+
+                                return (
+                                    <tr
+                                        key={hourLabel}
+                                        className={`h-[50px] border-b border-gray-300 ${isCurrentHour ? "bg-primary-beige/25" : ""}`}
+                                    >
+                                        <td className="hour-label border-r border-gray-300 pr-2 text-right text-sm font-medium">
+                                            {hourLabel}
+                                        </td>
+                                        {weekDays.map((date, dayIndex) => {
+                                            const cellDateTimeKey = getDateKey(date, hourLabel).substring(0, 16);
+
+                                            const taskForCell = tasks.find(
+                                                (t: Task) => t.dueDate.substring(0, 16) === cellDateTimeKey
+                                            );
+
+                                            const isToday = date.toDateString() === currentDate.toDateString();
+
+                                            return (
+                                                <td
+                                                    key={dayIndex}
+                                                    className={`day-cell relative border-l border-gray-300 text-center ${isToday ? "bg-primary-beige/25" : ""}`}
+                                                >
+                                                    {taskForCell && (
+                                                        <button
+                                                            title={taskForCell.title}
+                                                            className={`inline-flex h-10 w-10 items-center justify-center rounded-full text-xs font-bold text-white ${
+                                                                taskForCell.priority === "high" && "bg-red-500"
+                                                            } ${taskForCell.priority === "medium" && "bg-orange-500"} ${
+                                                                taskForCell.priority === "low" && "bg-green-500"
+                                                            } ${taskForCell.completed && "opacity-50"}`}
+                                                            onClick={() =>
+                                                                console.log("Mostrar detalles de:", taskForCell.title)
+                                                            }
+                                                        >
+                                                            <Info className="h-6 w-6 text-white" />
+                                                        </button>
+                                                    )}
+                                                </td>
+                                            );
+                                        })}
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
                 </article>
             </section>
         </section>
@@ -291,7 +490,7 @@ function Sidebar() {
 
     return (
         <>
-            <aside className="bg-primary-beige border-primary-beige-dark/80 relative flex min-w-25 flex-1 flex-col items-center gap-4 rounded-2xl border p-4 shadow-xl">
+            <aside className="bg-primary-beige border-primary-beige-dark/80 fixed flex h-full max-h-[calc(100vh-2.5rem)] min-w-25 flex-1 flex-col items-center gap-4 rounded-2xl border p-4 shadow-xl">
                 <div className="relative flex w-full flex-1 flex-col items-center gap-6">
                     <div
                         className="bg-primary-active absolute z-0 h-18 w-18 rounded-2xl transition-all duration-300"
@@ -350,7 +549,8 @@ function NewTaskModal({ open, onClose }: { open: boolean; onClose: () => void })
             title: formData.get("title") as string,
             description: formData.get("description") as string,
             dueDate: new Date(formData.get("dueDate") as string).toISOString(),
-            priority: formData.get("priority") as "high" | "medium" | "low"
+            priority: formData.get("priority") as "high" | "medium" | "low",
+            completed: false
         };
 
         console.log("Nueva tarea creada:", newTask);

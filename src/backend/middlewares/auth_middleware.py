@@ -28,3 +28,12 @@ def require_auth(f):
         return f(user_id, *args, **kwargs)
     wrapper.__name__ = f.__name__
     return wrapper
+
+def require_api_key(f):
+    """Decorator para proteger rutas que requieren API key."""
+    def wrapper(*args, **kwargs):
+        if check_api_key():
+            return jsonify({"error": "API key inválida"}), 403
+        return f(*args, **kwargs)
+    wrapper.__name__ = f.__name__
+    return wrapper

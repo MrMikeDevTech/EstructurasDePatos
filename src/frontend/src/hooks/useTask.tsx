@@ -5,7 +5,7 @@ const initialTasks: Task[] = [
     {
         id: "1",
         title: "Posada",
-        description: "Posada de la carrera en el Rancho San Antonio",
+        description: "Posada de la carrera en el Rancho Don Agustin",
         dueDate: "2025-11-28T19:30",
         priority: "high",
         completed: false
@@ -100,14 +100,6 @@ const initialTasks: Task[] = [
     },
     {
         id: "13",
-        title: "Examen Departamental de Inglés",
-        description: "Presentar el examen departamental en el aula designada",
-        dueDate: "2025-11-28T08:00",
-        priority: "high",
-        completed: false
-    },
-    {
-        id: "14",
         title: "Revisar notas",
         description: "Revisar las notas de la clase de matemáticas",
         dueDate: "2025-11-25T12:00",
@@ -115,7 +107,7 @@ const initialTasks: Task[] = [
         completed: true
     },
     {
-        id: "15",
+        id: "14",
         title: "Planear vacaciones",
         description: "Organizar el itinerario para las vacaciones de diciembre",
         dueDate: "2025-11-30T18:00",
@@ -126,11 +118,24 @@ const initialTasks: Task[] = [
 
 export type NavigateStore = {
     tasks: Task[];
-    /* eslint-disable-next-line no-unused-vars */
+    /* eslint-disable no-unused-vars */
     addTask: (task: Task) => void;
+    setTask: (tasks: Task[]) => void;
+    updateTask: (taskId: string, updatedTask: Task) => void;
+    deleteTask?: (taskId: string) => void;
+    /* eslint-enable no-unused-vars */
 };
 
 export const useTask = create<NavigateStore>((set) => ({
     tasks: initialTasks,
-    addTask: (task) => set((state) => ({ tasks: [...state.tasks, task] }))
+    addTask: (task) => set((state) => ({ tasks: [...state.tasks, task] })),
+    setTask: (tasks) => set({ tasks }),
+    updateTask: (taskId, updatedTask) =>
+        set((state) => ({
+            tasks: state.tasks.map((task) => (task.id === taskId ? updatedTask : task))
+        })),
+    deleteTask: (taskId) =>
+        set((state) => ({
+            tasks: state.tasks.filter((task) => task.id !== taskId)
+        }))
 }));

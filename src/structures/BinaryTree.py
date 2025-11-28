@@ -1,5 +1,6 @@
 class NodoArbol:
-    def __init__(self, valor):
+    def __init__(self, key, valor):
+        self.key = key
         self.valor = valor
         self.izq = None
         self.der = None
@@ -8,36 +9,36 @@ class ArbolBinarioBusqueda:
     def __init__(self):
         self.raiz = None
 
-    def insertar(self, valor):
+    def insertar(self, key, valor):
         if self.raiz is None:
-            self.raiz = NodoArbol(valor)
+            self.raiz = NodoArbol(key, valor)
         else:
-            self._insertar(self.raiz, valor)
+            self._insertar(self.raiz, key, valor)
 
-    def _insertar(self, nodo, valor):
-        if valor < nodo.valor:
+    def _insertar(self, nodo, key, valor):
+        if key < nodo.key:
             if nodo.izq is None:
-                nodo.izq = NodoArbol(valor)
+                nodo.izq = NodoArbol(key, valor)
             else:
-                self._insertar(nodo.izq, valor)
+                self._insertar(nodo.izq, key, valor)
         else:
             if nodo.der is None:
-                nodo.der = NodoArbol(valor)
+                nodo.der = NodoArbol(key, valor)
             else:
-                self._insertar(nodo.der, valor)
+                self._insertar(nodo.der, key, valor)
 
-    def buscar(self, valor):
-        return self._buscar(self.raiz, valor)
+    def buscar(self, key):
+        return self._buscar(self.raiz, key)
 
-    def _buscar(self, nodo, valor):
+    def _buscar(self, nodo, key):
         if nodo is None:
-            return False
-        if valor == nodo.valor:
-            return True
-        elif valor < nodo.valor:
-            return self._buscar(nodo.izq, valor)
+            return None
+        if key == nodo.key:
+            return nodo.valor
+        elif key < nodo.key:
+            return self._buscar(nodo.izq, key)
         else:
-            return self._buscar(nodo.der, valor)
+            return self._buscar(nodo.der, key)
 
     def _minimo(self, nodo):
         actual = nodo
@@ -45,17 +46,17 @@ class ArbolBinarioBusqueda:
             actual = actual.izq
         return actual
 
-    def eliminar(self, valor):
-        self.raiz = self._eliminar(self.raiz, valor)
+    def eliminar(self, key):
+        self.raiz = self._eliminar(self.raiz, key)
 
-    def _eliminar(self, nodo, valor):
+    def _eliminar(self, nodo, key):
         if nodo is None:
             return nodo
 
-        if valor < nodo.valor:
-            nodo.izq = self._eliminar(nodo.izq, valor)
-        elif valor > nodo.valor:
-            nodo.der = self._eliminar(nodo.der, valor)
+        if key < nodo.key:
+            nodo.izq = self._eliminar(nodo.izq, key)
+        elif key > nodo.key:
+            nodo.der = self._eliminar(nodo.der, key)
         else:
             if nodo.izq is None:
                 return nodo.der
@@ -63,8 +64,9 @@ class ArbolBinarioBusqueda:
                 return nodo.izq
 
             temp = self._minimo(nodo.der)
+            nodo.key = temp.key
             nodo.valor = temp.valor
-            nodo.der = self._eliminar(nodo.der, temp.valor)
+            nodo.der = self._eliminar(nodo.der, temp.key)
 
         return nodo
 
@@ -74,7 +76,7 @@ class ArbolBinarioBusqueda:
     def _inorden(self, nodo, lista):
         if nodo:
             self._inorden(nodo.izq, lista)
-            lista.append(nodo.valor)
+            lista.append((nodo.key, nodo.valor))  # Devolvemos el par (key, valor)
             self._inorden(nodo.der, lista)
         return lista
 
@@ -83,7 +85,7 @@ class ArbolBinarioBusqueda:
 
     def _preorden(self, nodo, lista):
         if nodo:
-            lista.append(nodo.valor)
+            lista.append((nodo.key, nodo.valor))
             self._preorden(nodo.izq, lista)
             self._preorden(nodo.der, lista)
         return lista
@@ -95,7 +97,7 @@ class ArbolBinarioBusqueda:
         if nodo:
             self._postorden(nodo.izq, lista)
             self._postorden(nodo.der, lista)
-            lista.append(nodo.valor)
+            lista.append((nodo.key, nodo.valor))
         return lista
 
     def obtener_todos(self):

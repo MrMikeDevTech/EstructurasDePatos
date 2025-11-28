@@ -10,10 +10,15 @@ auth_bp = Blueprint("auth", __name__)
 def register():
     data = request.json
     username = data.get("username")
+    email = data.get("email")
     password = data.get("password")
+    confirm_password = data.get("confirm_password")
 
-    if not username or not password:
-        return jsonify({"error": "username y password requeridos"}), 400
+    if not username or not email or not password or not confirm_password:
+        return jsonify({"error": "Todos los campos son requeridos"}), 400
+
+    if password != confirm_password:
+        return jsonify({"error": "Las contraseñas no coinciden"}), 400
 
     hashed = generate_password_hash(password)
     
@@ -21,10 +26,13 @@ def register():
     cursor = conn.cursor()
 
     try:
-        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, hashed))
+        cursor.execute(
+            "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
+            (username, email, hashed)
+        )
         conn.commit()
     except:
-        return jsonify({"error": "El usuario ya existe"}), 400
+        return jsonify({"error": "El usuario o el email ya existe"}), 400
 
     return jsonify({"message": "Usuario registrado"}), 201
 

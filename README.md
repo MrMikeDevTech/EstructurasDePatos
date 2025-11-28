@@ -3,6 +3,11 @@
 Este es el proyecto final de Estructuras de Datos, en el cual tenemos que hacer una app con Python y usando algunas estructuras de datos, en las cuales usamos Arboles Binarios y Listas Enlazadas.
 El proyecto fue creado con Flask para el backend y React para el frontend, y se compila todo en un solo ejecutable usando PyInstaller, usando SQLite como base de datos.
 
+## Imagenes de la App
+![App Screenshot 1](src/assets/Ducky-1.png)
+![App Screenshot 2](src/assets/Ducky-2.png)
+![App Screenshot 3](src/assets/Ducky-3.png)
+
 ## 1. Clonar el respositorio
 ```bash
 git clone https://github.com/MrMikeDevTech/EstructurasDePatos.git

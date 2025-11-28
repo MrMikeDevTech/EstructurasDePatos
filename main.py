@@ -32,7 +32,7 @@ if __name__ == "__main__":
         frontend_index = os.path.abspath("src/frontend/dist/index.html")
     
     webview.create_window(
-        title="Mi App TODO",
+        title="Ducky",
         url=frontend_index,
         width=1024,
         height=768,

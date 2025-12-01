@@ -1,12 +1,13 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from ...database.database import get_connection
-from ..middlewares.auth_middleware import check_api_key, get_user_from_token
+from ..middlewares.auth_middleware import require_api_key, get_user_from_token
 import secrets
 
 auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.post("/register")
+@require_api_key
 def register():
     data = request.json
     username = data.get("username")
@@ -37,10 +38,13 @@ def register():
     return jsonify({"message": "Usuario registrado"}), 201
 
 @auth_bp.post("/login")
+@require_api_key
 def login():
     data = request.json
     username = data.get("username")
     password = data.get("password")
+    
+    print("Login attempt:", username, password)
 
     conn = get_connection()
     cursor = conn.cursor()
@@ -49,6 +53,8 @@ def login():
     user = cursor.fetchone()
 
     if not user or not check_password_hash(user["password"], password):
+        print("Invalid credentials for user:", username)
+        print("Correct password hash:", user["password"] if user else "N/A")
         return jsonify({"error": "Credenciales incorrectas"}), 401
 
     cursor.execute("SELECT token FROM tokens WHERE user_id = ?", (user["id"],))
@@ -64,6 +70,7 @@ def login():
     return jsonify({"token": token})
 
 @auth_bp.post("/logout")
+@require_api_key
 def logout():
     user_id = get_user_from_token()
     if not user_id:

@@ -6,7 +6,7 @@ from flask import Blueprint, request, jsonify
 
 todo_bp = Blueprint("todos", __name__)
 
-@todo_bp.get("/")
+@todo_bp.get("")
 @require_auth
 @require_api_key
 def list_todos(user_id):
@@ -34,7 +34,7 @@ def list_todos(user_id):
 
     return jsonify(lista.obtener_todos()), 200
 
-@todo_bp.post("/")
+@todo_bp.post("")
 @require_auth
 @require_api_key
 def create_todo(user_id):

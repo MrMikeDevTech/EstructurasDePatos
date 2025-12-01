@@ -74,7 +74,6 @@ def update_todo(user_id, todo_id):
     done = data.get("done")
     priority = data.get("priority")
 
-    # Validar fecha ISO si se proporciona
     if date_due:
         try:
             from datetime import datetime
@@ -96,7 +95,6 @@ def update_todo(user_id, todo_id):
         conn.close()
         return jsonify({"error": "No autorizado"}), 403
 
-    # Usar los valores actuales si no se envían en la petición
     title = title if title is not None else todo["title"]
     description = description if description is not None else todo["description"]
     date_due = date_due if date_due is not None else todo["date_due"]
@@ -123,7 +121,6 @@ def delete_todo(user_id, todo_id):
     conn = get_connection()
     cursor = conn.cursor()
 
-    # Buscar el TODO
     cursor.execute("SELECT * FROM todos WHERE id = ?", (todo_id,))
     todo = cursor.fetchone()
 
@@ -135,7 +132,6 @@ def delete_todo(user_id, todo_id):
         conn.close()
         return jsonify({"error": "No autorizado"}), 403
 
-    # Eliminar
     cursor.execute("DELETE FROM todos WHERE id = ?", (todo_id,))
     conn.commit()
     conn.close()

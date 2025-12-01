@@ -76,7 +76,7 @@ class ArbolBinarioBusqueda:
     def _inorden(self, nodo, lista):
         if nodo:
             self._inorden(nodo.izq, lista)
-            lista.append((nodo.key, nodo.valor))  # Devolvemos el par (key, valor)
+            lista.append((nodo.key, nodo.valor))
             self._inorden(nodo.der, lista)
         return lista
 
